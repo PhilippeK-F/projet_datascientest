@@ -1,0 +1,13 @@
+services:
+  mongodb:
+    image : mongo:7.0
+    container_name: cryptobotmongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${USR_MONGO}
+      MONGO_INITDB_ROOT_PASSWORD: ${PWD_MONGO}
+    volumes:
+      - ./data:/data/db
+    ports:
+      - 27017:27017
+    env_file:
+      - ../../.env

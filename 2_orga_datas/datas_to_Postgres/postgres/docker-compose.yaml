@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${USR_PSQL}
+      POSTGRES_PASSWORD: ${PWD_PSQL} 
+      POSTGRES_DB: crypto_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ../../.env
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PWD} 
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    env_file:
+      - ../../.env
+
+  etl:
+    build: .
+    container_name: etl
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_USER: ${USR_PSQL}
+      POSTGRES_PASSWORD: ${PWD_PSQL}
+      POSTGRES_DB: crypto_db
+    command: ["python", "load.py"]
+    volumes:
+      - type : bind
+        source: ./data
+        target: /app/data
+    env_file:
+      - ../../.env
+
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+#scheduler:
+ # image: python:3.11
+  #container_name: cron_etl
+  #volumes:
+  #  - .:/app
+  #working_dir: /app
+  #command: >
+  #  sh -c "apt-get update &&
+  #          apt-get install -y cron &&
+  #          echo '0 */6 * * * python /app/extract.py && python /app/transform.py && python /app/load.py' > /etc/cron.d/etl_cron &&
+   #         chmod 0644 /etc/cron.d/etl_cron &&
+    #        crontab /etc/cron.d/etl_cron &&
+     #       cron -f"
+  #depends_on:
+   # - postgres  
