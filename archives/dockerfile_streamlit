@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+RUN pip install pandas streamlit pillow numpy matplotlib pymongo sqlalchemy psycopg2
+
+ADD app.py /app/app.py
+ADD streamlit_app/ /app/streamlit_app/
+ADD add_datas/postgres/config.py /app/add_datas/postgres/config.py
+
+WORKDIR /app
+EXPOSE 8501
+CMD streamlit run app.py
+
+# docker build -f dockerfile_streamlit .
+# docker run -p 8501:8501 --network <network> <image>
+# docker run -p 8501:8501 --network postgresql_default <image>
